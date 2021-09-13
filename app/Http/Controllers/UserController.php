@@ -21,11 +21,10 @@ class UserController extends Controller
      * Регистрация и авторизация нового пользователя
      * @param CreateUserRequest $request
      * @param CreateUserCommand $createUserCommand
-     * @param LoginUserCommand $loginUserCommand
      * @return JsonResponse
      * @throws Throwable
      */
-    public function register(CreateUserRequest $request, CreateUserCommand $createUserCommand, LoginUserCommand $loginUserCommand): JsonResponse
+    public function register(CreateUserRequest $request, CreateUserCommand $createUserCommand): JsonResponse
     {
         $createUserCommand->createUser($request->getCreateDto());
 
