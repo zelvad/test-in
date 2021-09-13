@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Users;
 
 use App\Services\Dto\Users\CreateUserDto;
-use App\Services\Dto\Users\LoginUserDto;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CreateUserRequest extends FormRequest
@@ -39,17 +38,6 @@ class CreateUserRequest extends FormRequest
     {
         return new CreateUserDto(
             $this->get('name'),
-            $this->get('email'),
-            $this->get('password')
-        );
-    }
-
-    /**
-     * @return LoginUserDto
-     */
-    public function getLoginDto(): LoginUserDto
-    {
-        return new LoginUserDto(
             $this->get('email'),
             $this->get('password')
         );
