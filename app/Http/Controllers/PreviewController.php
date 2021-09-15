@@ -17,7 +17,9 @@ class PreviewController extends Controller
      */
     public function index(GetPreviewsCommand $command): JsonResponse
     {
-        return response()->json($command->getPreviews());
+        return response()->json(
+            $command->getPreviews()
+        );
     }
 
     /**

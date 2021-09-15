@@ -48,7 +48,6 @@
 import PreviewsList from "./component/PreviewsList";
 import axios from "axios";
 import GeneratePreview from "./component/GeneratePreview";
-
 export default {
     name: "Home",
     components: {
@@ -124,7 +123,6 @@ export default {
                 console.log(err);
             });
         }
-
         if (this.$store.state.token !== '') {
             axios.get('/api/user/me', {
                 headers: {
@@ -145,33 +143,33 @@ export default {
 </script>
 
 <style scoped>
-    .generate-preview {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-    }
-    .links {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-    }
-    .preview {
-        display: flex;
-        align-items: center;
-        border: 1px solid #95999c1f;
-    }
-    .preview-link {
-        color: #000000;
-        text-decoration: none;
-        width: 700px;
-        margin: 20px 0 0 0;
-    }
-    .link-a {
-        color: #000000;
-        text-decoration: none;
-        width: 700px;
-        margin: 20px 0 0 0;
-    }
+.generate-preview {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+.links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+.preview {
+    display: flex;
+    align-items: center;
+    border: 1px solid #95999c1f;
+}
+.preview-link {
+    color: #000000;
+    text-decoration: none;
+    width: 700px;
+    margin: 20px 0 0 0;
+}
+.link-a {
+    color: #000000;
+    text-decoration: none;
+    width: 700px;
+    margin: 20px 0 0 0;
+}
 </style>

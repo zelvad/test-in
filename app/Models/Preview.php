@@ -19,9 +19,6 @@ class Preview extends Model
 {
     use HasFactory;
 
-    /**
-     * @var string[]
-     */
     protected $fillable = [
         'url',
         'author',
@@ -31,9 +28,6 @@ class Preview extends Model
         'user_id'
     ];
 
-    /**
-     * @return HasOne
-     */
     public function user(): HasOne
     {
         return $this->hasOne(User::class);

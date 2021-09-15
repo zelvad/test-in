@@ -9,9 +9,6 @@ use Throwable;
 class CreateUserCommand
 {
     /**
-     * Создание нового пользователя
-     * @param CreateUserDto $dto
-     * @return User
      * @throws Throwable
      */
     public function createUser(CreateUserDto $dto): User

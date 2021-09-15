@@ -58,14 +58,11 @@ class RouteServiceProvider extends ServiceProvider
     protected function configureRateLimiting()
     {
         RateLimiter::for('createPreview', function (Request $request) {
-            if (auth()->guest())
+            if (auth()->guest()) {
                 return Limit::perDay(5)->by($request->ip());
+            }
 
             return Limit::perDay(100)->by($request->user()->id);
-        });
-
-        RateLimiter::for('createPreview', function (Request $request) {
-            return Limit::perDay(1)->by($request->get('url'));
         });
     }
 }

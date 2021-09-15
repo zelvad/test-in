@@ -5,36 +5,30 @@ namespace App\Services\Previews;
 use App\Models\Preview;
 use App\Services\Dto\Previews\CreatePreviewDto;
 use App\Services\Previews\Parser\GetPreviewCommand;
+use Throwable;
 
 class CreatePreviewCommand
 {
-    private GetPreviewCommand $command;
+    private GetPreviewCommand $previewCommand;
 
-    /**
-     * @param GetPreviewCommand $command
-     */
-    public function __construct(GetPreviewCommand $command)
+    public function __construct(GetPreviewCommand $previewCommand)
     {
-        $this->command = $command;
+        $this->previewCommand = $previewCommand;
     }
 
     /**
-     * Добавление нового превью
-     * @param CreatePreviewDto $dto
-     * @param GetPreviewCommand $command
-     * @return Preview
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function createPreview(CreatePreviewDto $dto): Preview
     {
-        $previewArr = $this->command->getPreview($dto->getUrl());
+        $previewArray = $this->previewCommand->getPreview($dto->getUrl());
 
         $newPreview = new Preview;
         $newPreview->url = $dto->getUrl();
-        $newPreview->author = $previewArr['author'];
-        $newPreview->title = $previewArr['title'];
-        $newPreview->description = $previewArr['description'];
-        $newPreview->image = $previewArr['image'];
+        $newPreview->author = $previewArray['author'];
+        $newPreview->title = $previewArray['title'];
+        $newPreview->description = $previewArray['description'];
+        $newPreview->image = $previewArray['image'];
         $newPreview->user_id = auth()->id();
         $newPreview->saveOrFail();
 

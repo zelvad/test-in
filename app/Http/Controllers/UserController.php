@@ -14,7 +14,15 @@ class UserController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login', 'register']]);
+        $this->middleware(
+            'auth:api',
+            [
+                'except' => [
+                    'login',
+                    'register'
+                ]
+            ]
+        );
     }
 
     /**
@@ -26,7 +34,9 @@ class UserController extends Controller
      */
     public function register(CreateUserRequest $request, CreateUserCommand $createUserCommand): JsonResponse
     {
-        $createUserCommand->createUser($request->getCreateDto());
+        $createUserCommand->createUser(
+            $request->getCreateDto()
+        );
 
         return response()->json(['ok' => true]);
     }
@@ -39,10 +49,13 @@ class UserController extends Controller
      */
     public function login(LoginUserRequest $request, LoginUserCommand $command): JsonResponse
     {
-        if (!$loginArr = $command->loginUser($request->getDto()))
-            return response()->json(['ok' => false], 401);
+        $loginResponseArray = $command->loginUser($request->getDto());
 
-        return response()->json($loginArr);
+        if (!$loginResponseArray) {
+            return response()->json(['ok' => false], 401);
+        }
+
+        return response()->json($loginResponseArray);
     }
 
     /**
@@ -52,6 +65,7 @@ class UserController extends Controller
     public function logout(): JsonResponse
     {
         Auth::logout();
+
         return response()->json(['ok' => true]);
     }
 

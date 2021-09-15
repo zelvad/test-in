@@ -1,3 +1,5 @@
+import axios from "axios";
+
 require('./bootstrap');
 import Vue from "vue";
 import App from "./app/App";
@@ -16,3 +18,4 @@ const app = new Vue({
     store: store,
     render: app => app(App)
 });
+

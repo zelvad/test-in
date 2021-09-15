@@ -13,7 +13,9 @@ class CheckRobotsRulesCommand
      */
     public function checkRobotsRules(string $parseUrl): bool
     {
-        if (!$robotsTxtRules = $this->loadRobotsFileRules($parseUrl)) return true;
+        if (!$robotsTxtRules = $this->loadRobotsFileRules($parseUrl)) {
+            return true;
+        }
 
         return $this->checkRules($robotsTxtRules, $parseUrl);
     }
@@ -27,9 +29,12 @@ class CheckRobotsRulesCommand
     {
         $domain = $this->getDomainFromUrl($parseUrl);
         $robotsTxtUrl = $this->generateUrlToRobotsFileFromDomain($domain);
+        $robotsTxtFile = $this->loadRobotsFileFromUrl($robotsTxtUrl);
+        $robotsTxtArr = $this->parseRobotsFile($robotsTxtFile);
 
-        if (!$robotsTxtFile = $this->loadRobotsFileFromUrl($robotsTxtUrl)) return false;
-        if (empty($robotsTxtArr = $this->parseRobotsFile($robotsTxtFile))) return false;
+        if (!$robotsTxtFile or empty($robotsTxtArr)) {
+            return false;
+        }
 
         return $robotsTxtArr;
     }
@@ -62,8 +67,10 @@ class CheckRobotsRulesCommand
     private function loadRobotsFileFromUrl(string $url)
     {
         try {
-            if ($robotsTxt = file_get_contents($url))
+            if ($robotsTxt = file_get_contents($url)) {
                 return $robotsTxt;
+            }
+
             return false;
         } catch (\Throwable $exception) {
             return false;
@@ -88,8 +95,16 @@ class CheckRobotsRulesCommand
      */
     private function checkRules(array $rules, string $parseUrl): bool
     {
-        if ($this->checkDisallowAll($rules) or $this->checkDisallowUrl($rules, $parseUrl))
+        if (!$this->checkExistsDisallow($rules)) {
+            return true;
+        }
+
+        $disallowALlURLs = $this->checkDisallowAll($rules);
+        $disallowThisUrl = $this->checkDisallowUrl($rules, $parseUrl);
+
+        if ($disallowALlURLs or $disallowThisUrl) {
             return false;
+        }
 
         return true;
     }
@@ -101,10 +116,10 @@ class CheckRobotsRulesCommand
      */
     private function checkDisallowAll(array $rules): bool
     {
-        if (!$this->checkExistsDisallow($rules)) return false;
-
         foreach ($rules as $rule) {
-            if ($rule == '/') return true;
+            if ($rule == '/') {
+                return true;
+            }
         }
 
         return false;
@@ -128,12 +143,12 @@ class CheckRobotsRulesCommand
      */
     private function checkDisallowUrl(array $rules, string $parseUrl): bool
     {
-        if (!$this->checkExistsDisallow($rules)) return false;
-
         $pathParseUrl = $this->getPathFromUrl($parseUrl);
 
         foreach ($rules['*']['disallow'] as $rule) {
-            if ($rule == $pathParseUrl) return true;
+            if ($rule == $pathParseUrl) {
+                return true;
+            }
         }
 
         return false;

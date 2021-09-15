@@ -8,28 +8,31 @@ class GetPreviewCommand
 {
     private ParseTagsCommand $tagsCommand;
     private CheckRobotsRulesCommand $rulesCommand;
+    private PreviewCacheCommand $cacheCommand;
 
-    /**
-     * @param ParseTagsCommand $tagsCommand
-     * @param CheckRobotsRulesCommand $rulesCommand
-     */
-    public function __construct(ParseTagsCommand $tagsCommand, CheckRobotsRulesCommand $rulesCommand)
+    public function __construct(ParseTagsCommand $tagsCommand, CheckRobotsRulesCommand $rulesCommand, PreviewCacheCommand $cacheCommand)
     {
         $this->tagsCommand = $tagsCommand;
         $this->rulesCommand = $rulesCommand;
+        $this->cacheCommand = $cacheCommand;
     }
 
     /**
-     * Генерация превью страницы
-     * @param string $parseUrl
-     * @return array|string
      * @throws Exception
      */
     public function getPreview(string $parseUrl)
     {
-        if (!$this->rulesCommand->checkRobotsRules($parseUrl))
+        if (!$this->rulesCommand->checkRobotsRules($parseUrl)) {
             return $parseUrl;
+        }
 
-        return $this->tagsCommand->getTags($parseUrl);
+        $tags = $this->cacheCommand->getCache($parseUrl);
+
+        if (!$tags) {
+            $tags = $this->tagsCommand->getTags($parseUrl);
+            $this->cacheCommand->putCache($parseUrl, $tags);
+        }
+
+        return $tags;
     }
 }

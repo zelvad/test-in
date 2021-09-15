@@ -70,6 +70,8 @@ export default {
         login () {
             axios.post('/api/user/login', this.credentials)
                 .then(res => {
+                    this.errorLogin = false;
+                    this.serverError = false;
                     this.$store.commit('setToken', res.data.access_token);
                     this.$router.push({
                         name: 'home'
