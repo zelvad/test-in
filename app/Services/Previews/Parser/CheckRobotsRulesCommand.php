@@ -2,14 +2,13 @@
 
 namespace App\Services\Previews\Parser;
 
+use App\Exceptions\Previews\RobotsTxtException;
 use RobotsTxtParser\RobotsTxtParser;
 
 class CheckRobotsRulesCommand
 {
     /**
-     * Проверка возможности парсинга страницы
-     * @param string $parseUrl
-     * @return bool
+     * @throws RobotsTxtException
      */
     public function checkRobotsRules(string $parseUrl): bool
     {
@@ -17,13 +16,16 @@ class CheckRobotsRulesCommand
             return true;
         }
 
-        return $this->checkRules($robotsTxtRules, $parseUrl);
+        try {
+            $this->checkRules($robotsTxtRules, $parseUrl);
+            return true;
+        } catch (RobotsTxtException $exception) {
+            return false;
+        }
     }
 
     /**
-     * Загрузка правил из файла robots.txt
-     * @param string $parseUrl
-     * @return array|false
+     * @throws RobotsTxtException
      */
     private function loadRobotsFileRules(string $parseUrl)
     {
@@ -40,127 +42,88 @@ class CheckRobotsRulesCommand
     }
 
     /**
-     * Загрузка домена ссылки
-     * @param string $url
-     * @return array|false|int|string|null
+     * @throws RobotsTxtException
      */
     private function getDomainFromUrl(string $url)
     {
-        return parse_url($url, PHP_URL_HOST);
+        if (!$domain = parse_url($url, PHP_URL_HOST)) {
+            throw new RobotsTxtException('Ошибка парсинга домена!');
+        }
+
+        return $domain;
     }
 
-    /**
-     * Генерация ссылки на robots.txt
-     * @param string $domain
-     * @return string
-     */
     private function generateUrlToRobotsFileFromDomain(string $domain): string
     {
         return "http://{$domain}/robots.txt";
     }
 
-    /**
-     * Загрузка robots.txt
-     * @param string $url
-     * @return false|string
-     */
     private function loadRobotsFileFromUrl(string $url)
     {
         try {
-            if ($robotsTxt = file_get_contents($url)) {
-                return $robotsTxt;
-            }
-
-            return false;
+            return file_get_contents($url);
         } catch (\Throwable $exception) {
             return false;
         }
     }
 
-    /**
-     * Парсинг файла robots.txt
-     * @param string $robotsTxtFile
-     * @return array
-     */
     private function parseRobotsFile(string $robotsTxtFile): array
     {
-        return (new RobotsTxtParser($robotsTxtFile))->getRules();
+        $robotsParser = new RobotsTxtParser($robotsTxtFile);
+        return $robotsParser->getRules();
     }
 
     /**
-     * Проверка возможности парсинга URL
-     * @param array $rules
-     * @param string $parseUrl
-     * @return bool
+     * @throws RobotsTxtException
      */
-    private function checkRules(array $rules, string $parseUrl): bool
+    private function checkRules(array $rules, string $parseUrl)
     {
-        if (!$this->checkExistsDisallow($rules)) {
-            return true;
+        if ($this->checkExistsDisallow($rules)) {
+            $this->checkDisallowAll($rules);
+            $this->checkDisallowUrl($rules, $parseUrl);
         }
-
-        $disallowALlURLs = $this->checkDisallowAll($rules);
-        $disallowThisUrl = $this->checkDisallowUrl($rules, $parseUrl);
-
-        if ($disallowALlURLs or $disallowThisUrl) {
-            return false;
-        }
-
-        return true;
     }
 
-    /**
-     * Проверка запрета индексации всех страниц
-     * @param array $rules
-     * @return bool
-     */
-    private function checkDisallowAll(array $rules): bool
-    {
-        foreach ($rules as $rule) {
-            if ($rule == '/') {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Проверка существования исключений
-     * @param array $rules
-     * @return bool
-     */
     private function checkExistsDisallow(array $rules): bool
     {
         return isset($rules['*']['disallow']);
     }
 
     /**
-     * Проверка не заблокирован ли url к индексации
-     * @param array $rules
-     * @param string $parseUrl
-     * @return bool
+     * @throws RobotsTxtException
      */
-    private function checkDisallowUrl(array $rules, string $parseUrl): bool
+    private function checkDisallowAll(array $rules)
+    {
+        foreach ($rules as $rule) {
+            if ($rule == '/') {
+                throw new RobotsTxtException('URL запрещен к индексации.');
+            }
+        }
+    }
+
+    /**
+     * @throws RobotsTxtException
+     */
+    private function checkDisallowUrl(array $rules, string $parseUrl)
     {
         $pathParseUrl = $this->getPathFromUrl($parseUrl);
 
         foreach ($rules['*']['disallow'] as $rule) {
             if ($rule == $pathParseUrl) {
-                return true;
+                throw new RobotsTxtException('URL запрещен к индексации.');
             }
         }
-
-        return false;
     }
 
     /**
-     * Парсинг пути URL
-     * @param string $parseUrl
-     * @return array|false|int|string|null
+     * @throws RobotsTxtException
      */
     private function getPathFromUrl(string $parseUrl)
     {
-        return parse_url($parseUrl, PHP_URL_PATH);
+        if (!$parseUrl = parse_url($parseUrl, PHP_URL_PATH)) {
+            throw new RobotsTxtException('Ошибка парсинга URL.');
+        }
+
+        return $parseUrl;
     }
 }

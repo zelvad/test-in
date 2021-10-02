@@ -18,8 +18,8 @@ class CreatePreviewsTable extends Migration
             $table->string('url');
             $table->string('author')->nullable();
             $table->string('title')->nullable();
-            $table->string('description')->nullable();
-            $table->string('image')->nullable();
+            $table->text('description')->nullable();
+            $table->text('image')->nullable();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->foreign('user_id')
                 ->references('id')->on('users')

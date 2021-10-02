@@ -49,7 +49,7 @@ class ParseTagsCommand
         return [
             'author' => $this->getAuthorOrSiteNameTag($crawler) ?? $this->parseDomainFromUrl($url),
             'title' => $this->getTitleTag($crawler),
-            'description' => $this->getDescriptionTag($crawler),
+            'description' => $this->getOgDescriptionTag($crawler) ?? $this->getDescriptionTag($crawler),
             'image' => $this->getOgImageTag($crawler)
         ];
     }
@@ -90,7 +90,14 @@ class ParseTagsCommand
     private function getDescriptionTag(Crawler $crawler): ?string
     {
         return $crawler
-            ->filter('head > meta[name="description"]')
+                ->filter('head > meta[name="description"]')
+                ->extract(['content'])[0] ?? null;
+    }
+
+    private function getOgDescriptionTag(Crawler $crawler): ?string
+    {
+        return $crawler
+            ->filter('head > meta[name="og:description"]')
             ->extract(['content'])[0] ?? null;
     }
 

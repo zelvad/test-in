@@ -11,6 +11,6 @@ class GetPreviewsCommand
         return Preview::query()
             ->where('user_id', auth()->id())
             ->orderBy('id', 'desc')
-            ->get();
+            ->paginate(5);
     }
 }
